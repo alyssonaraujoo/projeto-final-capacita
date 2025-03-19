@@ -7,7 +7,12 @@ app.use(cors());
 app.use(express.json());
 
 const userRoutes = require("./routes/user");
+require("dotenv").config();
+
+const authRoutes = require("./routes/auth");
+
 app.use("/user", userRoutes);
+app.use("/auth", authRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {

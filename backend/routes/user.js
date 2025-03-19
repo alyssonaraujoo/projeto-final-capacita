@@ -1,33 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const prisma = new PrismaClient();
 
-router.get("/", async (req, res) => {
+router.get("/me", authMiddleware, async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
-    res.json(users);
-  } catch (e) {
-    res.status(400).json({ error: "Erro ao buscar usuários" });
-  }
-});
-
-router.post("/", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email e senha são obrigatórios" });
-    }
-
-    const newUser = await prisma.user.create({
-      data: { email, password },
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: { id: true, email: true },
     });
 
-    res.status(201).json(newUser);
-  } catch (e) {
-    res.status(500).json({ error: "Erro ao criar usuário" });
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao buscar usuário" });
   }
 });
 
