@@ -42,5 +42,7 @@ model GastoCompartilhado {
   user      User     @relation(fields: [userId], references: [id])
   gastoId   String
   gasto     Gasto    @relation(fields: [gastoId], references: [id])
+  amount    Float
+  status    String
   createdAt DateTime @default(now())
 }

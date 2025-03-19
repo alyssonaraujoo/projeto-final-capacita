@@ -6,13 +6,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const userRoutes = require("./routes/user");
 require("dotenv").config();
-
+const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
+const amizadeRoutes = require("./routes/amizade");
 
 app.use("/user", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/amizade", amizadeRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {
