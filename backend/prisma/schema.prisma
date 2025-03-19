@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  password           String
+  amigos1            Amizade[]            @relation("User1Amizade")
+  amigos2            Amizade[]            @relation("User2Amizade")
+  gastos             Gasto[]
+  gastoCompartilhado GastoCompartilhado[]
+}
+
+model Amizade {
+  id        String   @id @default(uuid())
+  user1     User     @relation("User1Amizade", fields: [user1Id], references: [id])
+  user1Id   String
+  user2     User     @relation("User2Amizade", fields: [user2Id], references: [id])
+  user2Id   String
+  createdAt DateTime @default(now())
+}
+
+model Gasto {
+  id          String               @id @default(uuid())
+  description String
+  amount      Float
+  payerId     String
+  payer       User                 @relation(fields: [payerId], references: [id])
+  sharedWith  GastoCompartilhado[]
+  createdAt   DateTime             @default(now())
+}
+
+model GastoCompartilhado {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  gastoId   String
+  gasto     Gasto    @relation(fields: [gastoId], references: [id])
+  createdAt DateTime @default(now())
+}
