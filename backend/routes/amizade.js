@@ -8,8 +8,6 @@ router.post("/create", authenticateToken, async (req, res) => {
   const user1Id = req.user?.userId;
   const { user2Id } = req.body;
 
-  console.log("Usuário logado:", req.user);
-  console.log("Tentando adicionar amigo com ID:", user2Id);
 
   if (!user1Id) {
     return res.status(401).json({ error: "Usuário não autenticado" });
