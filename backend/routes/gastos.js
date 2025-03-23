@@ -88,30 +88,52 @@ router.post("/new", authenticateToken, async (req, res) => {
 });
 
 // Rota para excluir um gasto por ID
-router.delete("/gastos/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+router.delete("/delete/:id", authenticateToken, async (req, res) => {
+  const payerId = req.user?.userId;
+  const { id } = req.params;
 
-    const gastoExiste = await prisma.gasto.findUnique({ where: { id } });
+  try {
+    // Verificar se o gasto existe e se pertence ao usuário logado
+    const gastoExiste = await prisma.gasto.findUnique({
+      where: { id },
+      select: { payerId: true },
+    });
 
     if (!gastoExiste) {
       return res.status(404).json({ error: "Gasto não encontrado" });
     }
 
+    if (gastoExiste.payerId !== payerId) {
+      return res
+        .status(403)
+        .json({ error: "Você não tem permissão para excluir este gasto" });
+    }
+
+    // Excluir os compartilhamentos associados
+    await prisma.gastoCompartilhado.deleteMany({
+      where: { gastoId: id },
+    });
+
+    // Excluir o gasto
     await prisma.gasto.delete({ where: { id } });
 
     res.json({ message: "Gasto excluído com sucesso!" });
   } catch (error) {
+    console.error("Erro ao excluir gasto:", error);
     res.status(500).json({ error: "Erro ao excluir gasto" });
   }
 });
 
-// Rota para atualizar um gasto por ID
-router.put("/gastos/:id", async (req, res) => {
-  try {
-    const { id } = req.params; // ID do gasto
-    const { descricao, valor, categoria, data } = req.body; // Campos a serem atualizados
 
+
+// Rota para atualizar um gasto por ID
+router.put("/edit/:id", authenticateToken, async (req, res) => {
+  const payerId = req.user?.userId;
+  const { id } = req.params; // ID do gasto
+  const { descricao, valor, categoria } = req.body; // Campos a serem atualizados
+
+  try {
+    // Verificar se os campos obrigatórios estão presentes
     if (!descricao || !valor || !categoria) {
       return res.status(400).json({
         message:
@@ -119,23 +141,41 @@ router.put("/gastos/:id", async (req, res) => {
       });
     }
 
-    // Atualizando o gasto
-    const atualizaGasto = await prisma.gasto.update({
+    // Buscar o gasto para verificar se o payerId corresponde ao usuário logado
+    const gastoExistente = await prisma.gasto.findUnique({
+      where: { id },
+    });
+
+    if (!gastoExistente) {
+      return res.status(404).json({ error: "Gasto não encontrado" });
+    }
+
+    // Verificar se o usuário logado é o responsável pelo gasto
+    if (gastoExistente.payerId !== payerId) {
+      return res
+        .status(403)
+        .json({ error: "Você não tem permissão para editar este gasto" });
+    }
+
+    // Atualizar o gasto
+    const atualizadoGasto = await prisma.gasto.update({
       where: { id },
       data: {
         descricao,
         valor: parseFloat(valor),
         categoria,
-        criadoEm: new Date(data),
       },
     });
 
-    res
-      .status(200)
-      .json({ message: "Gasto atualizado com sucesso", gasto: atualizaGasto });
+    res.status(200).json({
+      message: "Gasto atualizado com sucesso",
+      gasto: atualizadoGasto,
+    });
   } catch (error) {
+    console.error("Erro ao atualizar o Gasto:", error);
     res.status(500).json({ error: "Erro ao atualizar o Gasto" });
   }
 });
+
 
 module.exports = router;
