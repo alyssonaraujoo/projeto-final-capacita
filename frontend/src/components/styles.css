@@ -1,7 +1,7 @@
 /* Estilo geral */
 body {
     font-family: Arial, sans-serif;
-    background-color: #b3a799;
+    background-color: #dac3a9;
     margin: 0;
     padding: 0;
     display: flex;
@@ -35,7 +35,7 @@ body {
   }
   
   button {
-    background-color: #007bff;
+    background-color: #a88524;
     color: white;
     border: none;
     cursor: pointer;
@@ -43,7 +43,7 @@ body {
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: #a06814;
   }
   
   /* Lista de Gastos */
@@ -73,14 +73,14 @@ body {
   nav a {
     text-decoration: none;
     padding: 10px 15px;
-    background: #007bff;
+    background: #a8812c;
     color: white;
     border-radius: 5px;
     transition: background 0.3s;
   }
   
   nav a:hover {
-    background: #0056b3;
+    background: #a06814;
   }
   
   /* Responsividade */
@@ -99,4 +99,5 @@ body {
       text-align: center;
     }
   }
+  
   
