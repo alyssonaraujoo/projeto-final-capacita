@@ -1,0 +1,67 @@
+/* GastosContext.css */
+
+
+
+body {
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    min-height: 100vh; /* Garante que o body ocupa toda a altura da viewport */
+    margin: 0; /* Remove margens padrão do body */
+  }
+  
+  .gastos-context-provider {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 80%; /* Ajuste a largura conforme necessário */
+    max-width: 600px; /* Limita a largura máxima */
+  }
+  
+  .gastos-context-provider h2 {
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .gastos-context-provider ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .gastos-context-provider li {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .gastos-context-provider button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .gastos-context-provider button:hover {
+    background-color: #3e8e41;
+  }
+  
+  .gastos-context-provider .error {
+    color: red;
+    margin-top: 10px;
+  }
+  
+  /* Estilos adicionais para melhorar a apresentação */
+  .gastos-context-provider li strong {
+    font-weight: bold;
+  }
+  
+  gastos-context-provider li span {
+    margin-left: 10px;
+    color: #666;
+  }

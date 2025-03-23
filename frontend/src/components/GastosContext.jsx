@@ -1,17 +1,18 @@
+// GastosContext.jsx
 import { createContext, useState, useEffect } from "react";
-import api from "../api"; // Importa a API configurada
+import api from "../api";
+import "./GastosContext.css";
 
 export const GastosContext = createContext();
 
 export const GastosProvider = ({ children }) => {
   const [gastos, setGastos] = useState([]);
 
-  // 🔹 Carregar os gastos do backend ao iniciar
   useEffect(() => {
     const fetchGastos = async () => {
       try {
-        const response = await api.get("/gastos"); // Chama a API
-        setGastos(response.data); // Atualiza o estado
+        const response = await api.get("/gastos");
+        setGastos(response.data);
       } catch (error) {
         console.error("Erro ao buscar gastos:", error);
       }
@@ -20,7 +21,6 @@ export const GastosProvider = ({ children }) => {
     fetchGastos();
   }, []);
 
-  // 🔹 Função para adicionar gasto no backend
   const adicionarGasto = async (novoGasto) => {
     try {
       const response = await api.post("/gastos", novoGasto);
@@ -31,8 +31,10 @@ export const GastosProvider = ({ children }) => {
   };
 
   return (
-    <GastosContext.Provider value={{ gastos, adicionarGasto }}>
-      {children}
-    </GastosContext.Provider>
+    <div className="gastos-context-provider"> {/* Adiciona um div com a classe CSS */}
+      <GastosContext.Provider value={{ gastos, adicionarGasto }}>
+        {children}
+      </GastosContext.Provider>
+    </div>
   );
 };
