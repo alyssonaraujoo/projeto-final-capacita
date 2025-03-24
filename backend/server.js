@@ -11,11 +11,13 @@ const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
 const amizadeRoutes = require("./routes/amizade");
 const gastosRoutes = require("./routes/gastos");
+const compartilhadosComigoRoutes = require("./routes/compartilhadosComigo");
 
 app.use("/user", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/amizade", amizadeRoutes);
 app.use("/gastos", gastosRoutes);
+app.use("/gastos", compartilhadosComigoRoutes);
 
 // teste servidor
 app.get("/", (req, res) => {
