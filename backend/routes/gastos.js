@@ -4,6 +4,8 @@ const authenticateToken = require("../middleware/authMiddleware");
 const prisma = new PrismaClient();
 const router = express.Router();
 
+
+
 // Rota para listar todos os gastos
 router.get("/gastos", authenticateToken, async (req, res) => {
   const payerId = req.user?.userId; // Verificando o payerId a partir do token
@@ -124,6 +126,28 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
   }
 });
 
+//verifica se as pessoas sao amigas para compartilhar gastos
+router.post("/amigos", authenticateToken, async (req, res) => {
+  const payerId = req.user?.userId; 
+  const { compartilhadoCom } = req.body;
+  try {
+    const amigos = await prisma.amizade.findMany({
+      where: {
+        AND: [
+          { userId: payerId },
+          { friendId: compartilhadoCom },
+          { status: "Aceito" },
+        ],
+      },
+    });
+    if (amigos.length === 0) {
+      return res.status(400).json({ error: "Usuário não é seu amigo" });
+    }
+    res.json(amigos);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao buscar amigos" });
+  }
+});
 
 
 // Rota para atualizar um gasto por ID
