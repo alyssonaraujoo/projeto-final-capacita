@@ -17,6 +17,11 @@ app.use("/auth", authRoutes);
 app.use("/amizade", amizadeRoutes);
 app.use("/gastos", gastosRoutes);
 
+// teste servidor
+app.get("/", (req, res) => {
+  res.send("Servidor rodando!");
+});
+
 const PORT = 3000;
 
 app.listen(PORT, () => {

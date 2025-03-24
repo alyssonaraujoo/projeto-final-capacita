@@ -4,6 +4,8 @@ const authenticateToken = require("../middleware/authMiddleware");
 const prisma = new PrismaClient();
 const router = express.Router();
 
+
+
 // Rota para listar todos os gastos
 router.get("/gastos", authenticateToken, async (req, res) => {
   const payerId = req.user?.userId; // Verificando o payerId a partir do token
@@ -51,6 +53,7 @@ router.post("/new", authenticateToken, async (req, res) => {
   }
 
   try {
+
     // Criando o novo gasto
     const novoGasto = await prisma.gasto.create({
       data: {
@@ -64,16 +67,33 @@ router.post("/new", authenticateToken, async (req, res) => {
 
     // Criando os compartilhamentos relacionados ao gasto
     const compartilhamentos = compartilhadoCom.map((user) => ({
+      amigos: amigos, // Verifica se os usuarios sao amigos para compartilhar gastos
       userId: user.userId, // ID do usuário com quem o gasto será compartilhado
       valor: user.valor, // Valor que o usuário pagará
       gastoId: novoGasto.id, // ID do gasto
       status: "Pendente", // Status do compartilhamento (por exemplo, Pendente, Pago)
     }));
 
+
     // Criando os registros de GastoCompartilhado
     await prisma.gastoCompartilhado.createMany({
       data: compartilhamentos,
     });
+
+    // Verifica se os usuarios sao amigos para compartilhar gastos
+    const amigos = await prisma.amizade.findMany({
+      where: {
+        AND: [
+          { userId: payerId },
+          { friendId: compartilhadoCom },
+          { status: "Aceito" },
+        ],
+      },
+    });
+    if (amigos.length === 0) {
+      return res.status(400).json({ error: "Usuário não é seu amigo" });
+    }
+    res.json(amigos);
 
     res.status(201).json({
       gasto: novoGasto,
@@ -123,8 +143,6 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Erro ao excluir gasto" });
   }
 });
-
-
 
 // Rota para atualizar um gasto por ID
 router.put("/edit/:id", authenticateToken, async (req, res) => {
