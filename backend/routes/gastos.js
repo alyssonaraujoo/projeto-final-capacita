@@ -4,8 +4,6 @@ const authenticateToken = require("../middleware/authMiddleware");
 const prisma = new PrismaClient();
 const router = express.Router();
 
-
-
 // Rota para listar todos os gastos
 router.get("/gastos", authenticateToken, async (req, res) => {
   const payerId = req.user?.userId; // Verificando o payerId a partir do token
@@ -38,22 +36,45 @@ router.get("/gasto/:id", async (req, res) => {
 // Rota para adicionar um novo gasto
 router.post("/new", authenticateToken, async (req, res) => {
   const payerId = req.user?.userId; // Verificando o payerId a partir do token
-  const { descricao, valor, categoria, data, compartilhadoCom } = req.body;
+  const { descricao, valor, categoria, status, data, compartilhadoCom } =
+    req.body;
 
   // Verificando se os campos necessários estão presentes
-  if (
-    !descricao ||
-    !valor ||
-    !compartilhadoCom ||
-    compartilhadoCom.length === 0
-  ) {
+  if (!descricao || !valor || !status) {
     return res
       .status(400)
       .json({ error: "Descrição, valor e compartilhamento são obrigatórios" });
   }
 
-  try {
+  // Se compartilhadoCom for undefined, define como um array vazio
+  const amigosParaVerificar = Array.isArray(compartilhadoCom)
+    ? compartilhadoCom
+    : [];
 
+  // Se houver amigos para compartilhar, verifica se são amigos antes de criar o gasto
+  if (amigosParaVerificar.length > 0) {
+    const amigoAceito = await prisma.amizade.findFirst({
+      where: {
+        status: "Aceito",
+        OR: [
+          ...amigosParaVerificar.map((user) => ({
+            user1Id: payerId,
+            user2Id: user.userId,
+          })),
+          ...amigosParaVerificar.map((user) => ({
+            user1Id: user.userId,
+            user2Id: payerId,
+          })),
+        ],
+      },
+    });
+
+    if (!amigoAceito) {
+      return res.status(400).json({ error: "Usuário não é seu amigo" });
+    }
+  }
+
+  try {
     // Criando o novo gasto
     const novoGasto = await prisma.gasto.create({
       data: {
@@ -62,45 +83,30 @@ router.post("/new", authenticateToken, async (req, res) => {
         categoria,
         criadoEm: new Date(data),
         payerId,
+        status,
       },
     });
 
-    // Criando os compartilhamentos relacionados ao gasto
-    const compartilhamentos = compartilhadoCom.map((user) => ({
-      amigos: amigos, // Verifica se os usuarios sao amigos para compartilhar gastos
-      userId: user.userId, // ID do usuário com quem o gasto será compartilhado
-      valor: user.valor, // Valor que o usuário pagará
-      gastoId: novoGasto.id, // ID do gasto
-      status: "Pendente", // Status do compartilhamento (por exemplo, Pendente, Pago)
-    }));
+    // Se houver amigos para compartilhar, cria os registros
+    if (amigosParaVerificar.length > 0) {
+      const compartilhamentos = amigosParaVerificar.map((user) => ({
+        userId: user.userId,
+        valor: user.valor,
+        gastoId: novoGasto.id,
+      }));
 
+      await prisma.gastoCompartilhado.createMany({
+        data: compartilhamentos,
+      });
 
-    // Criando os registros de GastoCompartilhado
-    await prisma.gastoCompartilhado.createMany({
-      data: compartilhamentos,
-    });
-
-    // Verifica se os usuarios sao amigos para compartilhar gastos
-    const amigos = await prisma.amizade.findMany({
-      where: {
-        AND: [
-          { userId: payerId },
-          { friendId: compartilhadoCom },
-          { status: "Aceito" },
-        ],
-      },
-    });
-    if (amigos.length === 0) {
-      return res.status(400).json({ error: "Usuário não é seu amigo" });
+      res.status(201).json({ gasto: novoGasto, compartilhamentos });
+    } else {
+      res.status(201).json({ gasto: novoGasto });
     }
-    res.json(amigos);
-
-    res.status(201).json({
-      gasto: novoGasto,
-      compartilhamentos: compartilhamentos,
-    });
   } catch (error) {
     console.error("Erro ao criar gasto:", error);
+    console.log("Payer ID:", payerId);
+
     res
       .status(500)
       .json({ error: "Erro ao adicionar gasto e compartilhamentos" });
@@ -148,7 +154,7 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
 router.put("/edit/:id", authenticateToken, async (req, res) => {
   const payerId = req.user?.userId;
   const { id } = req.params; // ID do gasto
-  const { descricao, valor, categoria } = req.body; // Campos a serem atualizados
+  const { descricao, valor, categoria, status } = req.body; // Campos a serem atualizados
 
   try {
     // Verificar se os campos obrigatórios estão presentes
@@ -182,6 +188,7 @@ router.put("/edit/:id", authenticateToken, async (req, res) => {
         descricao,
         valor: parseFloat(valor),
         categoria,
+        status
       },
     });
 
@@ -194,6 +201,5 @@ router.put("/edit/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Erro ao atualizar o Gasto" });
   }
 });
-
 
 module.exports = router;

@@ -24,6 +24,7 @@ model Amizade {
   user2     User     @relation("User2Amizade", fields: [user2Id], references: [id])
   user2Id   String
   createdAt DateTime @default(now())
+  status    String   @default("Aceito")
 }
 
 model Gasto {
@@ -35,6 +36,7 @@ model Gasto {
   payer            User                 @relation(fields: [payerId], references: [id])
   compartilhadoCom GastoCompartilhado[]
   criadoEm         DateTime             @default(now())
+  status           String               @default("Pendente")
 }
 
 model GastoCompartilhado {
@@ -44,6 +46,6 @@ model GastoCompartilhado {
   gastoId  String
   gasto    Gasto    @relation(fields: [gastoId], references: [id])
   valor    Float
-  status   String
   criadoEm DateTime @default(now())
+  status   String   @default("Pendente")
 }
