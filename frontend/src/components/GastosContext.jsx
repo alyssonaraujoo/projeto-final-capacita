@@ -31,10 +31,10 @@ export const GastosProvider = ({ children }) => {
   };
 
   return (
-    <div className="gastos-context-provider"> {/* Adiciona um div com a classe CSS */}
-      <GastosContext.Provider value={{ gastos, adicionarGasto }}>
-        {children}
-      </GastosContext.Provider>
-    </div>
+      <div className="gastos-context-provider"> {/* Adiciona um div com a classe CSS */}
+        <GastosContext.Provider value={{ gastos, adicionarGasto }}>
+          {children}
+        </GastosContext.Provider>
+      </div>
   );
 };

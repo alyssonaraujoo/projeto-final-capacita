@@ -35,7 +35,9 @@ const AdicionarGasto = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <>
+      <h2>Adicionar Gasto</h2>
+      <form onSubmit={handleSubmit}>
       <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
       <input type="number" placeholder="Valor" value={valor} onChange={(e) => setValor(e.target.value)} required />
       <input type="date" value={data} onChange={(e) => setData(e.target.value)} required />
@@ -48,6 +50,8 @@ const AdicionarGasto = () => {
       </select>
       <button type="submit">Adicionar Gasto</button>
     </form>
+    </>
+    
   );
 };
 
