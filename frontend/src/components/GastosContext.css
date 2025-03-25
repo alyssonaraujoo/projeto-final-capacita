@@ -93,7 +93,7 @@ body {
 .gastos-context-provider::after {
     content: "Conecta $ Cash";
     position: absolute;
-    top: 110px; /* Ajuste a posição para cima */
+    top: 120px; /* Ajuste a posição para cima */
     left: 50%;
     transform: translateX(-50%) rotate(0deg);
     font-size: 2em;
@@ -110,6 +110,6 @@ body {
 .gastos-context-provider::after.unido {
     content: "Conecta$Cash";
     opacity: 0;
-    top: 110px; /* Ajuste a posição para cima */
+    top: 120px; /* Ajuste a posição para cima */
     bottom: auto; /* Remove a propriedade bottom */
 }
