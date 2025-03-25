@@ -1,25 +1,59 @@
-import { useContext , useState } from "react";
-import { GastosContext } from "./GastosContext";
+import { useEffect, useState } from "react";
+import api from "../api";
 
 const ListaGastos = () => {
-  const { gastos } = useContext(GastosContext);
+  const [gastos, setGastos] = useState([]);
   const [filtro, setFiltro] = useState("todos");
   const [ordenacao, setOrdenacao] = useState("nenhum");
 
+  useEffect(() => {
+    api
+      .get("/gastos/gastos")
+      .then((response) => setGastos(response.data))
+      .catch((error) => console.error("Erro ao buscar despesas:", error));
+  }, []);
 
-  const dados = [
-    { descricao: "Almoço", valor: 20, categoria: "Alimentação", data: "2021-09-01" },
-    { descricao: "Uber", valor: 15, categoria: "Transporte", data: "2021-09-02" },
-    { descricao: "Cinema", valor: 30, categoria: "Lazer", data: "2021-09-03" },
-    { descricao: "Livro", valor: 40, categoria: "Outros", data: "2021-09-04" },
-    { descricao: "Jantar", valor: 30, categoria: "Alimentação", data: "2021-09-05" },
-    { descricao: "Táxi", valor: 20, categoria: "Transporte", data: "2021-09-06" },
-    { descricao: "Teatro", valor: 50, categoria: "Lazer", data: "2021-09-07" },
-    { descricao: "Revista", valor: 10, categoria: "Outros", data: "2021-09-08" },
-  ]
+  // const dados = [
+  //   {
+  //     descricao: "Almoço",
+  //     valor: 20,
+  //     categoria: "Alimentação",
+  //     data: "2021-09-01",
+  //   },
+  //   {
+  //     descricao: "Uber",
+  //     valor: 15,
+  //     categoria: "Transporte",
+  //     data: "2021-09-02",
+  //   },
+  //   { descricao: "Cinema", valor: 30, categoria: "Lazer", data: "2021-09-03" },
+  //   { descricao: "Livro", valor: 40, categoria: "Outros", data: "2021-09-04" },
+  //   {
+  //     descricao: "Jantar",
+  //     valor: 30,
+  //     categoria: "Alimentação",
+  //     data: "2021-09-05",
+  //   },
+  //   {
+  //     descricao: "Táxi",
+  //     valor: 20,
+  //     categoria: "Transporte",
+  //     data: "2021-09-06",
+  //   },
+  //   { descricao: "Teatro", valor: 50, categoria: "Lazer", data: "2021-09-07" },
+  //   {
+  //     descricao: "Revista",
+  //     valor: 10,
+  //     categoria: "Outros",
+  //     data: "2021-09-08",
+  //   },
+  // ];
 
   //filtra gastos por categoria
-  const gastosFiltrados = filtro === "todos" ? dados : dados.filter((gasto) => gasto.categoria === filtro);
+  const gastosFiltrados =
+    filtro === "todos"
+      ? gastos
+      : gastos.filter((gasto) => gasto.categoria === filtro);
 
   //ordena gastos por valor
   const gastosOrdenados = [...gastosFiltrados].sort((a, b) => {
@@ -29,7 +63,6 @@ const ListaGastos = () => {
   });
 
   return (
-    
     <div>
       <h2>Lista de Gastos</h2>
 
@@ -50,7 +83,11 @@ const ListaGastos = () => {
       </select>
 
       {/* Tabela de gastos */}
-      <table border="1" cellPadding="12" style={{ marginTop: "18px", borderCollapse: "collapse" }}>
+      <table
+        border="1"
+        cellPadding="12"
+        style={{ marginTop: "18px", borderCollapse: "collapse" }}
+      >
         <thead>
           <tr>
             <th>Descrição</th>
@@ -77,9 +114,7 @@ const ListaGastos = () => {
         </tbody>
       </table>
     </div>
-
   );
 };
 
 export default ListaGastos;
-

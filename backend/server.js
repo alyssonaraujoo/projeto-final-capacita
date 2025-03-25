@@ -3,7 +3,12 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Permite apenas o front-end acessar
+    credentials: true, // Permite cookies e headers de autenticação
+  })
+);
 app.use(express.json());
 
 require("dotenv").config();
