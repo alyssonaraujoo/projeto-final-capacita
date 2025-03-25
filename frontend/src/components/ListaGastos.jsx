@@ -7,47 +7,19 @@ const ListaGastos = () => {
   const [ordenacao, setOrdenacao] = useState("nenhum");
 
   useEffect(() => {
-    api
-      .get("/gastos/gastos")
-      .then((response) => setGastos(response.data))
-      .catch((error) => console.error("Erro ao buscar despesas:", error));
+    const fetchGastos = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await api.get("/gastos/gastos", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setGastos(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar gastos: ", error);
+      }
+    };
+    fetchGastos();
   }, []);
-
-  // const dados = [
-  //   {
-  //     descricao: "Almoço",
-  //     valor: 20,
-  //     categoria: "Alimentação",
-  //     data: "2021-09-01",
-  //   },
-  //   {
-  //     descricao: "Uber",
-  //     valor: 15,
-  //     categoria: "Transporte",
-  //     data: "2021-09-02",
-  //   },
-  //   { descricao: "Cinema", valor: 30, categoria: "Lazer", data: "2021-09-03" },
-  //   { descricao: "Livro", valor: 40, categoria: "Outros", data: "2021-09-04" },
-  //   {
-  //     descricao: "Jantar",
-  //     valor: 30,
-  //     categoria: "Alimentação",
-  //     data: "2021-09-05",
-  //   },
-  //   {
-  //     descricao: "Táxi",
-  //     valor: 20,
-  //     categoria: "Transporte",
-  //     data: "2021-09-06",
-  //   },
-  //   { descricao: "Teatro", valor: 50, categoria: "Lazer", data: "2021-09-07" },
-  //   {
-  //     descricao: "Revista",
-  //     valor: 10,
-  //     categoria: "Outros",
-  //     data: "2021-09-08",
-  //   },
-  // ];
 
   //filtra gastos por categoria
   const gastosFiltrados =
@@ -98,8 +70,8 @@ const ListaGastos = () => {
         </thead>
         <tbody>
           {gastosOrdenados.length > 0 ? (
-            gastosOrdenados.map((gasto, index) => (
-              <tr key={index}>
+            gastosOrdenados.map((gasto) => (
+              <tr key={gasto.id}>
                 <td>{gasto.descricao}</td>
                 <td>R$ {gasto.valor.toFixed(2)}</td>
                 <td>{gasto.categoria}</td>
