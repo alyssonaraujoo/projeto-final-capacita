@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 function Cadastro() {
-  const [formData, setFormData] = useState({ nome: '', email: '', senha: '' });
+  const [formData, setFormData] = useState({ email: '', senha: '' });
   const [mensagem, setMensagem] = useState('');
 
   const handleChange = (e) => {
@@ -12,7 +13,7 @@ function Cadastro() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/cadastro'); 
+      const response = await api.post('/register'); 
       setFormData(response.data);
       setMensagem('Cadastro realizado com sucesso! Faça login.');
     } catch (error) {
@@ -20,16 +21,18 @@ function Cadastro() {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <div>
       <h2>Cadastro</h2>
       <form onSubmit={handleSubmit}>
-        <input type="text" name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} required />
         <input type="email" name="email" placeholder="E-mail" value={formData.email} onChange={handleChange} required />
         <input type="password" name="senha" placeholder="Senha" value={formData.senha} onChange={handleChange} required />
         <button type="submit">Cadastrar</button>
       </form>
       {mensagem && <p>{mensagem}</p>}
+      <p>Já possui uma conta ? <button  className='button_login' onClick={() => navigate('/')} > Faça login</button> </p>
     </div>
   );
 }

@@ -11,7 +11,7 @@ export const GastosProvider = ({ children }) => {
   useEffect(() => {
     const fetchGastos = async () => {
       try {
-        const response = await api.get("/gastos");
+        const response = await api.get("/gastos/gastos");
         setGastos(response.data);
       } catch (error) {
         console.error("Erro ao buscar gastos:", error);
@@ -22,8 +22,9 @@ export const GastosProvider = ({ children }) => {
   }, []);
 
   const adicionarGasto = async (novoGasto) => {
+    
     try {
-      const response = await api.post("/gastos", novoGasto);
+      const response = await api.post("/gastos/new", novoGasto);
       setGastos((prevGastos) => [...prevGastos, response.data]);
     } catch (error) {
       console.error("Erro ao adicionar gasto:", error);

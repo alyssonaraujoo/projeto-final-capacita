@@ -1,38 +1,34 @@
 import { useState } from 'react';
-import Cadastro from './Cadstro';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', senha: '' });
   const [mensagem, setMensagem] = useState('');
-  const [mostrarCadastro, setMostrarCadastro] = useState(false);
-
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
     try {
       const response = await api.post('/login', formData, {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      localStorage.setItem('token', response.data.token);
-      setMensagem('Login realizado com sucesso!');
+      localStorage.setItem('token', response.data.token); // verificar com token jwt
+      setMensagem('Login realizado com sucesso!'); // verificar com token jwt
     } catch (error) {
       setMensagem(error.response?.data?.message || 'Erro ao fazer login.');
     }
   };
 
+  const navigate = useNavigate();
+
   return (
-    <div>
-      {mostrarCadastro ? (
-        <>
-          <Cadastro />
-          <p> Já tem uma conta? <button onClick={() => setMostrarCadastro(false)}>Faça login</button> </p>
-        </>
-      ) : (
         <>
           <h2 className='login_h2' >Login</h2>
           <form onSubmit={handleSubmit}>
@@ -41,11 +37,8 @@ function Login() {
             <button type="submit">Entrar</button>
           </form>
           {mensagem && <p>{mensagem}</p>}
-          <p>Ainda não tem conta? <button  className='button_cadastro' onClick={() => setMostrarCadastro(true)}> Cadastre-se</button> </p>
+          <p>Ainda não tem conta? <button  className='button_cadastro' onClick={() => navigate('/cadastro')} > Cadastre-se</button> </p>
         </>
       )}
-    </div>
-  );
-}
 
 export default Login;
