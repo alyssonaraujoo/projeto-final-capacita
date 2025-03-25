@@ -4,7 +4,7 @@ import ListaGastos from "./ListaGastos";
 import GraficoGastos from "./GraficoGastos";
 import "./styles.css"; // 🔥 Importação do CSS
 import Login from "./Login";
-import Cadastro from "./Cadstro";
+import Cadastro from "./Cadastro.jsx";
 import { AuthProvider } from "../context/AuthContext.jsx";
 
 const App = () => {

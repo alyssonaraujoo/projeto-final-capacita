@@ -18,8 +18,6 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      console.log("Enviando:", { email, password });
-
       const response = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", response.data.token);
       setUser(response.data.user);
@@ -30,13 +28,27 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const signup = async (email, password) => {
+    try {
+      const response = await api.post("/auth/register", {
+        email,
+        password,
+      });
+      setUser(response.data.user);
+      return true;
+    } catch (error) {
+      console.error("Erro no cadastro:", error.response?.data || error.message);
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, signup }}>
       {children}
     </AuthContext.Provider>
   );

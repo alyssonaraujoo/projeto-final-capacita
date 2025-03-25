@@ -2,35 +2,39 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-function Login() {
-  const [mensagem, setMensagem] = useState("");
-  const { login } = useContext(AuthContext);
+function Cadastro() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mensagem, setMensagem] = useState("");
+  const { signup } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Valores do Form:", { email, password }); 
     if (!email || !password) {
       setMensagem("Preencha todos os campos!");
       return;
     }
 
-    const success = await login(email, password);
+    if (!email || !password) {
+      setMensagem("Preencha todos os campos!");
+      return;
+    }
+
+    const success = await signup(email, password);
 
     if (success) {
-      setMensagem("Login bem-sucedido!");
+      console.log("Cadastro bem-sucedido!");
     } else {
-      setMensagem("Falha no login!");
+      console.error("Falha no cadastro!");
     }
   };
 
   const navigate = useNavigate();
 
   return (
-    <>
-      <h2 className="login_h2">Login</h2>
+    <div>
+      <h2>Cadastro</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -48,21 +52,18 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Entrar</button>
+        <button type="submit">Cadastrar</button>
       </form>
       {mensagem && <p>{mensagem}</p>}
       <p>
-        Ainda não tem conta?{" "}
-        <button
-          className="button_cadastro"
-          onClick={() => navigate("/cadastro")}
-        >
+        Já possui uma conta ?{" "}
+        <button className="button_login" onClick={() => navigate("/")}>
           {" "}
-          Cadastre-se
+          Faça login
         </button>{" "}
       </p>
-    </>
+    </div>
   );
 }
 
-export default Login;
+export default Cadastro;
