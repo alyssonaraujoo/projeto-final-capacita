@@ -11,6 +11,13 @@ router.get("/compartilhados_comigo", authMiddleware, async (req, res) => {
   try {
     const gastosCompartilhados = await prisma.gastoCompartilhado.findMany({
       where: { userId },
+      include: {
+        gasto: {
+          include: {
+            payer: true,
+          },
+        },
+      },
     });
 
     if (!userId) {
