@@ -5,8 +5,19 @@ const app = express();
 
 app.use(
   cors({
-    origin:
-      "https://projeto-final-capacita-controle-de-gastos-qz4qj3tqb.vercel.app/", // Permite apenas o front-end acessar
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "https://projeto-final-capacita-controle-de-gastos-qz4qj3tqb.vercel.app",
+        "https://projeto-final-capacita-cont-git-8b1c44-arturs-projects-6052f39f.vercel.app",
+        "https://projeto-final-capacita-controle-de-gastos.vercel.app",
+        "http://localhost:5173",
+      ];
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS não permitido"), false);
+      }
+    }, // Permite apenas o front-end acessar
     credentials: true, // Permite cookies e headers de autenticação
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
