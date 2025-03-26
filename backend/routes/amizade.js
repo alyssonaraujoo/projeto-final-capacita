@@ -4,12 +4,27 @@ const authenticateToken = require("../middleware/authMiddleware");
 const prisma = new PrismaClient();
 const router = express.Router();
 
+router.get("/list", authenticateToken, async (req, res) => {
+  const userId = req.user?.userId;
+
+  try {
+    const amizades = await prisma.amizade.findMany({
+      where: {
+        OR: [{ user1Id: userId }, { user2Id: userId }],
+      },
+      include: {
+        user1: true,
+        user2: true,
+      },
+    });
+
+    res.json(amizades);
+  } catch (error) {}
+});
+
 router.post("/create", authenticateToken, async (req, res) => {
   const user1Id = req.user?.userId;
   const { user2Id } = req.body;
-
-  console.log("Usuário logado:", req.user);
-  console.log("Tentando adicionar amigo com ID:", user2Id);
 
   if (!user1Id) {
     return res.status(401).json({ error: "Usuário não autenticado" });
@@ -72,7 +87,7 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
 
     await prisma.amizade.delete({
       where: {
-        id
+        id,
       },
     });
 

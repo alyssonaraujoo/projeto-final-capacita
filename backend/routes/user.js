@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 router.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.userId },
+      where: { id: req.user?.userId },
       select: { id: true, email: true },
     });
 

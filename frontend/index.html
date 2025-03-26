@@ -1,13 +1,32 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>ConectaCash</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script src="/gastos-context-script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const gastosContext = document.querySelector('.gastos-context-provider');
+
+        if (gastosContext) { // Verifica se o elemento existe
+          gastosContext.addEventListener('mouseover', () => {
+            gastosContext.style.setProperty('--after-content', '"Conecta$Cash"');
+          });
+
+          gastosContext.addEventListener('mouseout', () => {
+            gastosContext.style.setProperty('--after-content', '"Conecta $ Cash"');
+          });
+
+          const styleSheet = document.styleSheets[0];
+          styleSheet.insertRule('.gastos-context-provider::after { content: var(--after-content, "Conecta $ Cash"); }', styleSheet.cssRules.length);
+        }
+      });
+    </script>
   </body>
 </html>

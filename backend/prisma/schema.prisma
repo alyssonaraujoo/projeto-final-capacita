@@ -24,25 +24,28 @@ model Amizade {
   user2     User     @relation("User2Amizade", fields: [user2Id], references: [id])
   user2Id   String
   createdAt DateTime @default(now())
+  status    String   @default("Aceito")
 }
 
 model Gasto {
-  id          String               @id @default(uuid())
-  description String
-  amount      Float
-  payerId     String
-  payer       User                 @relation(fields: [payerId], references: [id])
-  sharedWith  GastoCompartilhado[]
-  createdAt   DateTime             @default(now())
+  id               String               @id @default(uuid())
+  descricao        String
+  categoria        String
+  valor            Float
+  payerId          String
+  payer            User                 @relation(fields: [payerId], references: [id])
+  compartilhadoCom GastoCompartilhado[]
+  criadoEm         DateTime             @default(now())
+  status           String               @default("Pendente")
 }
 
 model GastoCompartilhado {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  gastoId   String
-  gasto     Gasto    @relation(fields: [gastoId], references: [id])
-  amount    Float
-  status    String
-  createdAt DateTime @default(now())
+  id       String   @id @default(uuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+  gastoId  String
+  gasto    Gasto    @relation(fields: [gastoId], references: [id])
+  valor    Float
+  criadoEm DateTime @default(now())
+  status   String   @default("Pendente")
 }
