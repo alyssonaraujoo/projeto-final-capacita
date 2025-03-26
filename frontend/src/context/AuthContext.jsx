@@ -19,8 +19,6 @@ export function AuthProvider({ children }) {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        console.log("Dados do usuário:", response.data);
       } catch (error) {
         console.error("Erro ao buscar dados do usuário:", error);
       }

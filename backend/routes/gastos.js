@@ -80,24 +80,39 @@ router.post("/new", authenticateToken, async (req, res) => {
         descricao,
         valor: parseFloat(valor),
         categoria,
-        criadoEm: data,
+        criadoEm: new Date(data).toISOString(),
         payerId,
       },
     });
 
+    console.log("compartilhadoCom recebido no backend:", compartilhadoCom);
+
     // Se houver amigos para compartilhar, cria os registros
     if (amigosParaVerificar.length > 0) {
-      const compartilhamentos = amigosParaVerificar.map((user) => ({
-        userId: user.userId,
-        valor: user.valor,
-        gastoId: novoGasto.id,
-      }));
+      const compartilhamentos = amigosParaVerificar
+        .map((user) => {
+          // Garantir que o userId e valor estão presentes
+          if (!user.userId || user.valor === undefined) {
+            console.error("Dados de compartilhamento inválidos:", user);
+            return null; // Retorna null se os dados não forem válidos
+          }
 
-      await prisma.gastoCompartilhado.createMany({
-        data: compartilhamentos,
-      });
+          return {
+            userId: String(user.userId).trim(), // Garantir que userId seja uma string válida
+            valor: parseFloat(user.valor), // Garantir que o valor seja um número
+            gastoId: novoGasto.id,
+          };
+        })
+        .filter(Boolean); // Filtra os valores nulos
 
-      res.status(201).json({ gasto: novoGasto, compartilhamentos });
+      console.log("Dados de compartilhamento processados:", compartilhamentos);
+
+      if (compartilhamentos.length === 0) {
+        console.warn("Nenhum usuário válido para compartilhar o gasto.");
+      } else {
+        await prisma.gastoCompartilhado.createMany({ data: compartilhamentos });
+        res.status(201).json({ gasto: novoGasto, compartilhamentos });
+      }
     } else {
       res.status(201).json({ gasto: novoGasto });
     }
