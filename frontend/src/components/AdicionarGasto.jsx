@@ -1,5 +1,21 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import api from "../api";
+import Modal from "@mui/material/Modal";
+import { Box } from "@mui/material";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 500,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
 
 const AdicionarGasto = () => {
   const [descricao, setDescricao] = useState("");
@@ -10,6 +26,16 @@ const AdicionarGasto = () => {
   const [compartilhadoCom, setCompartilhadoCom] = useState([]);
   const [amigos, setAmigos] = useState([]);
   const [me, setMe] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selectedFriends, setSelectedFriends] = useState({});
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const token = localStorage.getItem("token");
 
@@ -45,6 +71,7 @@ const AdicionarGasto = () => {
       setErro("Descrição e valor são obrigatórios!");
       return;
     }
+
     const compartilhamentos = compartilhadoCom.map((amigo) => ({
       userId: amigo.userId,
       valor: amigo.valorAmigo ? parseFloat(amigo.valorAmigo) : 0,
@@ -58,7 +85,7 @@ const AdicionarGasto = () => {
       compartilhadoCom: compartilhamentos,
     };
 
-    console.log("Enviando dados:", gastoData);  DEBUG
+    console.log("Enviando dados:", gastoData);
 
     try {
       const response = await api.post("/gastos/new", gastoData, {
@@ -71,6 +98,7 @@ const AdicionarGasto = () => {
         setCategoria("");
         setData("");
         setCompartilhadoCom([]);
+        setSelectedFriends({}); // Limpar os amigos selecionados ao criar o gasto
       } else {
         setErro("Erro ao criar gasto.");
       }
@@ -83,13 +111,31 @@ const AdicionarGasto = () => {
     }
   };
 
+  const handleCheckboxChange = (userId) => {
+    setSelectedFriends((prev) => {
+      const newSelected = { ...prev };
+      if (newSelected[userId]) {
+        delete newSelected[userId]; // Remover o amigo da seleção
+        setCompartilhadoCom(
+          (prevCompartilhado) =>
+            prevCompartilhado.filter((item) => item.userId !== userId) // Remover do compartilhadoCom
+        );
+      } else {
+        newSelected[userId] = true; // Adicionar o amigo à seleção
+        setCompartilhadoCom((prevCompartilhado) => [
+          ...prevCompartilhado,
+          { userId, valorAmigo: "" }, // Adicionar ao compartilhadoCom com valor inicial vazio
+        ]);
+      }
+      return newSelected;
+    });
+  };
+
   const handleValorAmigo = (userId, valor) => {
     setCompartilhadoCom((prev) => {
       const index = prev.findIndex((item) => item.userId === userId);
       if (index !== -1) {
-        prev[index].valorAmigo = valor;  
-      } else {
-        prev.push({ userId, valorAmigo: valor });  
+        prev[index].valorAmigo = valor;
       }
       return [...prev];
     });
@@ -118,60 +164,6 @@ const AdicionarGasto = () => {
           value={data}
           onChange={(e) => setData(e.target.value)}
         />
-
-        {/* Lista de Amigos */}
-        <select
-          name="amigos"
-          onChange={(e) => {
-            const selectedUserId = e.target.value;
-            const amigoExistente = compartilhadoCom.find(
-              (item) => item.userId === selectedUserId
-            );
-
-            if (!amigoExistente) {
-              setCompartilhadoCom([
-                ...compartilhadoCom,
-                { userId: selectedUserId, valorAmigo: "" },  
-              ]);
-            }
-          }}
-        >
-          <option disabled value="">
-            Escolha um amigo
-          </option>
-          {amigos && Array.isArray(amigos)
-            ? amigos.map((amizade) => {
-                const amigo =
-                  amizade.user1Id === me.id ? amizade.user2 : amizade.user1;
-                return (
-                  <option key={amizade.id} value={amigo.id}>
-                    {amigo.email}
-                  </option>
-                );
-              })
-            : []}
-        </select>
-
-        {/* Campo de Valor do Amigo */}
-        {compartilhadoCom.map((amigo, index) => (
-          <div key={amigo.userId}>
-            <label>{`Valor para ${amigo.userId}`}</label>
-            <input
-              type="number"
-              placeholder={`Valor para ${amigo.userId}`}
-              value={amigo.valorAmigo}
-              onChange={(e) => {
-                const novoValor = e.target.value;
-                setCompartilhadoCom((prev) => {
-                  const novaLista = [...prev];
-                  novaLista[index].valorAmigo = novoValor;
-                  return novaLista;
-                });
-              }}
-            />
-          </div>
-        ))}
-
         <select
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
@@ -186,6 +178,60 @@ const AdicionarGasto = () => {
           <option value="Outros">Outros</option>
         </select>
 
+        <button type="button" onClick={handleOpen}>
+          Adicionar amigos ao gasto
+        </button>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="parent-modal-title"
+          aria-describedby="parent-modal-description"
+        >
+          <Box sx={{ ...style }}>
+            <h2 id="parent-modal-title">Adicionar amigos</h2>
+            <ul>
+              {amigos && Array.isArray(amigos)
+                ? amigos.map((amizade) => {
+                    const amigo =
+                      amizade.user1Id === me.id ? amizade.user2 : amizade.user1;
+                    return (
+                      <li key={amizade.id}>
+                        <input
+                          type="checkbox"
+                          name="amigo"
+                          id={amizade.id}
+                          value={amigo.id}
+                          checked={selectedFriends[amigo.id] || false}
+                          onChange={() => handleCheckboxChange(amigo.id)}
+                        />
+                        {amigo.email}
+                        {compartilhadoCom
+                          .filter((item) => item.userId === amigo.id)
+                          .map((amigoSelecionado) => (
+                            <div key={amigoSelecionado.userId}>
+                              <input
+                                type="number"
+                                placeholder={`Valor`}
+                                value={amigoSelecionado.valorAmigo}
+                                onChange={(e) =>
+                                  handleValorAmigo(
+                                    amigoSelecionado.userId,
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </div>
+                          ))}
+                      </li>
+                    );
+                  })
+                : []}
+            </ul>
+            <button type="button" onClick={handleClose}>
+              Voltar
+            </button>
+          </Box>
+        </Modal>
         <button type="submit">Adicionar Gasto</button>
       </form>
 
