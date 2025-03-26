@@ -1,4 +1,3 @@
-// GastosContext.jsx
 import { createContext, useState, useEffect } from "react";
 import api from "../api";
 import "./GastosContext.css";
@@ -11,7 +10,16 @@ export const GastosProvider = ({ children }) => {
   useEffect(() => {
     const fetchGastos = async () => {
       try {
-        const response = await api.get("/gastos/gastos");
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Token não encontrado");
+        }
+
+        const response = await api.get("/gastos/gastos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setGastos(response.data);
       } catch (error) {
         console.error("Erro ao buscar gastos:", error);
@@ -22,7 +30,6 @@ export const GastosProvider = ({ children }) => {
   }, []);
 
   const adicionarGasto = async (novoGasto) => {
-    
     try {
       const response = await api.post("/gastos/new", novoGasto);
       setGastos((prevGastos) => [...prevGastos, response.data]);
@@ -32,10 +39,12 @@ export const GastosProvider = ({ children }) => {
   };
 
   return (
-      <div className="gastos-context-provider"> {/* Adiciona um div com a classe CSS */}
-        <GastosContext.Provider value={{ gastos, adicionarGasto }}>
-          {children}
-        </GastosContext.Provider>
-      </div>
+    <div className="gastos-context-provider">
+      {" "}
+      {/* Adiciona um div com a classe CSS */}
+      <GastosContext.Provider value={{ gastos, adicionarGasto }}>
+        {children}
+      </GastosContext.Provider>
+    </div>
   );
 };

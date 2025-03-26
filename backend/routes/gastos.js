@@ -36,11 +36,10 @@ router.get("/gasto/:id", async (req, res) => {
 // Rota para adicionar um novo gasto
 router.post("/new", authenticateToken, async (req, res) => {
   const payerId = req.user?.userId; // Verificando o payerId a partir do token
-  const { descricao, valor, categoria, status, data, compartilhadoCom } =
-    req.body;
+  const { descricao, valor, categoria, data, compartilhadoCom } = req.body;
 
   // Verificando se os campos necessários estão presentes
-  if (!descricao || !valor || !status) {
+  if (!descricao || !valor) {
     return res
       .status(400)
       .json({ error: "Descrição, valor e compartilhamento são obrigatórios" });
@@ -81,9 +80,8 @@ router.post("/new", authenticateToken, async (req, res) => {
         descricao,
         valor: parseFloat(valor),
         categoria,
-        criadoEm: new Date(data),
+        criadoEm: data,
         payerId,
-        status,
       },
     });
 
@@ -188,7 +186,7 @@ router.put("/edit/:id", authenticateToken, async (req, res) => {
         descricao,
         valor: parseFloat(valor),
         categoria,
-        status
+        status,
       },
     });
 

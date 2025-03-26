@@ -1,36 +1,61 @@
-import { useState, useContext } from "react";
-import { GastosContext } from "./GastosContext";
-import api from "../api"; // Importa a API configurada com Axios
+import { useState } from "react";
+import api from "../api";
 
 const AdicionarGasto = () => {
-  const { adicionarGasto } = useContext(GastosContext);
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [data, setData] = useState("");
+  const [data, setData] = useState();
+  const [erro, setErro] = useState("");
+  const [compartilhadoCom, setCompartilhadoCom] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!descricao || !valor) {
+      setErro("Descrição e valor são obrigatórios!");
+      return;
+    }
+
     try {
-      // 🚀 Faz a requisição POST para a API
-      const response = await api.post("/gastos", {
+      const token = localStorage.getItem("token");
+
+      const gastoData = {
         descricao,
-        valor: Number(valor),
-        categoria,
+        valor: parseFloat(valor),
         data,
-      });
+        categoria,
+      };
 
-      // Atualiza o contexto com o novo gasto
-      adicionarGasto(response.data);
+      if (compartilhadoCom.length > 0) {
+        gastoData.compartilhadoCom = compartilhadoCom;
+      }
 
-      // Limpa os campos
+      const response = await api.post(
+        "/gastos/new",
+        {
+          descricao,
+          valor: parseFloat(valor),
+          data,
+          compartilhadoCom,
+          categoria,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      console.log("Gasto criado:", response.data);
+
       setDescricao("");
       setValor("");
       setCategoria("");
-      setData("");
+      setData();
     } catch (error) {
-      console.error("Erro ao adicionar gasto:", error);
+      console.error(
+        "Erro ao criar gasto:",
+        error.response?.data || error.message,
+        erro
+      );
+      setErro(error.response?.data?.error || "Erro ao criar gasto.");
     }
   };
 
@@ -38,20 +63,45 @@ const AdicionarGasto = () => {
     <>
       <h2>Adicionar Gasto</h2>
       <form onSubmit={handleSubmit}>
-      <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
-      <input type="number" placeholder="Valor" value={valor} onChange={(e) => setValor(e.target.value)} required />
-      <input type="date" value={data} onChange={(e) => setData(e.target.value)} required />
-      <select value={categoria} onChange={(e) => setCategoria(e.target.value)} required>
-        <option value="">Escolha a categoria</option>
-        <option value="Alimentação">Alimentação</option>
-        <option value="Transporte">Transporte</option>
-        <option value="Lazer">Lazer</option>
-        <option value="Outros">Outros</option>
-      </select>
-      <button type="submit">Adicionar Gasto</button>
-    </form>
+        <input
+          type="text"
+          placeholder="Descrição"
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+          required
+        />
+        <input
+          type="number"
+          placeholder="Valor"
+          value={valor}
+          onChange={(e) => setValor(e.target.value)}
+          required
+        />
+        <input
+          type="date"
+          value={data}
+          onChange={(e) => setData(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Compartilhar com (ID do amigo)"
+          value={compartilhadoCom.join(", ")}
+          onChange={(e) => setCompartilhadoCom(e.target.value.split(","))}
+        />
+        <select
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+          required
+        >
+          <option value="">Escolha a categoria</option>
+          <option value="Alimentação">Alimentação</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Outros">Outros</option>
+        </select>
+        <button type="submit">Adicionar Gasto</button>
+      </form>
     </>
-    
   );
 };
 

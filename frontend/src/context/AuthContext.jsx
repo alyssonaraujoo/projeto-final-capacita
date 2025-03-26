@@ -7,13 +7,25 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      api
-        .get("/auth/me", { headers: { Authorization: `Bearer ${token}` } })
-        .then((response) => setUser(response.data))
-        .catch(() => setUser(null));
-    }
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Token não encontrado");
+        }
+
+        const response = await api.get("/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Dados do usuário:", response.data);
+      } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+      }
+    };
+    fetchUserData();
   }, []);
 
   const login = async (email, password) => {
