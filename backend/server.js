@@ -5,7 +5,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://projeto-final-capacita.onrender.com", // Permite apenas o front-end acessar
+    origin:
+      "https://projeto-final-capacita-controle-de-gastos-qz4qj3tqb.vercel.app/", // Permite apenas o front-end acessar
     credentials: true, // Permite cookies e headers de autenticação
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
