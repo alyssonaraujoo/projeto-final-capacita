@@ -5,8 +5,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Permite apenas o front-end acessar
+    origin: "https://projeto-final-capacita.onrender.com", // Permite apenas o front-end acessar
     credentials: true, // Permite cookies e headers de autenticação
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 app.use(express.json());
