@@ -59,9 +59,15 @@ const ListaGastos = () => {
     return 0;
   });
 
+  const somaGastos = `R$ ${gastosOrdenados
+    .reduce((acc, gasto) => acc + gasto.valor, 0)
+    .toFixed(2)}`;
+
   return (
     <div>
       <h2>Lista de Gastos</h2>
+      <span>Soma dos gastos: {somaGastos}</span>
+      <br />
 
       {/* Filtro por categoria */}
       <label>Filtrar por categoria:</label>
