@@ -8,6 +8,7 @@ const AdicionarGasto = () => {
   const [data, setData] = useState();
   const [erro, setErro] = useState("");
   const [compartilhadoCom, setCompartilhadoCom] = useState([]);
+  const [amigos, setAmigos] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
